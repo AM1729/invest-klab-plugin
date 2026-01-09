@@ -11,9 +11,8 @@ dynamic = ["version"]
 # All direct python dependencies should be listed here. If a package is
 # available from conda-forge, it can also be listed under the conda_dependencies.
 dependencies = [
-  "pygeoprocessing",
-  "taskgraph",
-  "natcap.invest>=3.17.0"
+  "natcap.invest>=3.17.0",
+  "klab-client-py"
 ]
 
 [tool.setuptools_scm]
@@ -33,11 +32,6 @@ api_version = "v1"
 # or other special characters because it will be used in an import statement.
 package_name = "invest_klab_plugin"
 
-dependencies = [
-  "klab-client-py"
-]
-
-
 # List of conda dependencies to install into the plugin's conda environment. 
 # Usually this includes python itself and any non-python dependencies
 # like the GDAL binaries. Packages listed here will be installed into the
@@ -52,6 +46,5 @@ dependencies = [
 conda_dependencies = [
   "gdal<3.11",  # missing libgdal.so issue happened with gdal 3.11
   "geotiff>=1.7.3",  # earlier versions don't support space in CONDA_PREFIX
-  "pygeoprocessing",  # install from conda-forge rather than building wheel with pip
   "natcap.invest>=3.17.0"  # install from conda-forge rather than building wheel with pip
 ]
