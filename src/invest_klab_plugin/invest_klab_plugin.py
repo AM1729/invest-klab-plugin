@@ -20,7 +20,7 @@ MODEL_SPEC = spec.ModelSpec(
         ['workspace_dir'],
         ['kim_semantic_query'],
         ['spatial_context'],
-        ['klab_certificate_path']]
+        ['klab_certificate_path']],
     inputs=[
         spec.N_WORKERS,
         spec.FileInput(
