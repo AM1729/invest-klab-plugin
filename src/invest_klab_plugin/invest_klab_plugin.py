@@ -21,14 +21,14 @@ MODEL_SPEC = spec.ModelSpec(
         ['kim_semantic_query'],
         ['spatial_context'],
         ['klab_certificate_path']],
+
     inputs=[
         spec.N_WORKERS,
-        spec.FileInput(
+
+        spec.StringInput(
             id = "klab_certificate_path",
             name = gettext("Klab Certificate Path"),
-            about = gettext("Path to the klab certificate file"),
-            required = False,
-            must_exist = True,
+            about = gettext("Path to the klab certificate file")
         ),
 
         spec.DirectoryInput(
