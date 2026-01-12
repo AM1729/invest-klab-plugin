@@ -5,8 +5,8 @@ Users of the InVEST Natcap Project can now integrate their Modelling Pipelines w
 
 The Plugin requires one to specify :
 - Workspace - this refers to a directory which InVEST will use to run the operations
-- Path to k.LAB Certificate and this should point to the k.LAB Engine one wishes to connect to - by default it should point to the local engine running in the http://127.0.0.1:8283, 
-- Spatial Context in WKT format, WGS84: Example - POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))
+- Path to k.LAB Certificate and this should point to the k.LAB Engine one wishes to connect to - by default it should point to the local engine running in the `http://127.0.0.1:8283`, 
+- Spatial Context in WKT format, WGS84: Example - `POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))`
 - Year: Example - 2020
 - Semantic Query: Example - `geography:Elevation` or `distance to infrastructure:Highway`. For further information on syntax and semantics of kim (a DSL based on xtext to develop k.LAB Models) please refer to the official technical documentation of klab.
 
