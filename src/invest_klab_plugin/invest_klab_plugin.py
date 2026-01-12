@@ -31,12 +31,14 @@ MODEL_SPEC = spec.ModelSpec(
         ['workspace_dir', 'results_suffix'],
         ['kim_semantic_query'],
         ['spatial_context'],
+        ['year'],
         ['klab_certificate_path']],
 
     inputs=[
         spec.WORKSPACE,
         spec.SUFFIX,
         spec.N_WORKERS,
+
         spec.StringInput(
             id = "klab_certificate_path",
             name = gettext("Klab Certificate Path"),
@@ -78,6 +80,13 @@ MODEL_SPEC = spec.ModelSpec(
             about=gettext(
                 'Spatial Context following the WKT Format.'),
             required=True
+        ),
+
+        spec.NumberInput(
+            id='year',
+            name=gettext("Year"),
+            about=gettext("Year of the observation"),
+            required=True
         )
     ],
     outputs=[
@@ -95,6 +104,7 @@ def execute(args):
     LOGGER.info("Starting k.LAB Plugin Model")
     ##klab_engine_url = args.get('klab_engine_url', 'http://localhost:8080')
     klab_certificate_path = args.get('klab_certificate_path', None)
+    year = int(args['year'])
     semantic_query = args['kim_semantic_query']
     spatial_context_wkt = "EPSG:4326 " + args['spatial_context']
 
@@ -106,7 +116,7 @@ def execute(args):
             klab=klab,
             area_WKT=spatial_context_wkt,
             obs_res="1 km",
-            obs_year=2020,
+            obs_year=year,
             observable=semantic_query,
             export_format=ExportFormat.BYTESTREAM,
             export_path=os.path.join(args['workspace_dir'], "result.tif")
