@@ -1,7 +1,7 @@
 # invest-klab-plugin
-A plugin developed to interact with the k.LAB Semantic Web from the InVEST Natcap Project. The InVEST Project recently introduced Plugins to help modellers, build and run their own models allowing improvisations over the existing ones, without any gatekeeping. Further information on Plugins could be found here: https://naturalcapitalalliance.stanford.edu/news/new-feature-opens-door-custom-models-mapping-and-valuing-natures-benefits and the Developer Guide on the same here: https://invest.readthedocs.io/en/latest/plugins.html
+A plugin developed to interact with the k.LAB Semantic Web from the <b>`InVEST Natcap Project`</b>. The InVEST Project recently introduced <i>Plugins</i> to help modellers, build and run their own models allowing improvisations over the existing ones, without any gatekeeping. Further information on Plugins could be found here: https://naturalcapitalalliance.stanford.edu/news/new-feature-opens-door-custom-models-mapping-and-valuing-natures-benefits and the Developer Guide on the same here: https://invest.readthedocs.io/en/latest/plugins.html
 
-Users of the InVEST Natcap Project can now integrate their Modelling Pipelines with the k.LAB Semantic Web of Geospatial Data import this plugin going to the <i> Manage Plugins </i> Option, using the following URL: https://github.com/integratedmodelling/invest-klab-plugin.git
+Users of the InVEST Natcap Project can now integrate their Modelling Pipelines with the k.LAB Semantic Web of Geospatial Data by importing this plugin by going to the <i> Manage Plugins </i> Option and using the following URL: https://github.com/integratedmodelling/invest-klab-plugin.git which is Open Sourced.
 
 The Plugin requires one to specify :
 - Workspace - this refers to a directory which InVEST will use to run the operations
