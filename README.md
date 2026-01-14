@@ -5,7 +5,7 @@ Users of the InVEST NatCap Project can now integrate their Modelling Pipelines w
 
 For each use, the k.LAB-InVEST Plugin user is required to specify:
 - Workspace - the directory which InVEST will use to run the operations
-- Path to [k.LAB Certificate](https://klab.integratedmodelling.org/get-started/), pointing to the k.LAB Engine one wishes to connect to. By default, it should point to the local engine running in the `http://127.0.0.1:8283`, 
+- Path to [k.LAB Certificate](https://klab.integratedmodelling.org/get-started/), after the user has registered as a k.LAB user (your user defines groups to which you belong, giving access to different data and models). This points to the k.LAB Engine one wishes to connect to. By default, it should point to the local engine running in the `http://127.0.0.1:8283`, 
 - Spatial Context in WKT format, WGS84: Example - `POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))`
 - Year: Example - 2020
 - Semantic Query: Example - `geography:Elevation` or `distance to infrastructure:Highway`. For further information on syntax and semantics of kim (a DSL based on xtext to develop k.LAB Models) please refer to the official technical documentation of k.LAB.
