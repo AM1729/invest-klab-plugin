@@ -4,13 +4,13 @@ A plugin developed to interact with the [k.LAB Semantic Web](https://klab.integr
 Users of the InVEST NatCap Project can now integrate their Modelling Pipelines with the k.LAB Semantic Web of Geospatial Data by importing this plugin by going to the <i> Manage Plugins </i> Option after opening the InVEST Workbench and using the following URL: https://github.com/integratedmodelling/invest-klab-plugin.git.
 
 For each use, the k.LAB-InVEST Plugin user is required to specify:
-- Workspace - the directory which InVEST will use to run the operations
-- Path to your [k.LAB Certificate](https://klab.integratedmodelling.org/get-started/), after the user has registered as a k.LAB user (your user defines groups to which you belong, giving access to different data and models). This points to the k.LAB Engine one wishes to connect to. By default, it should point to the local engine running in the `http://127.0.0.1:8283`, 
-- Spatial Context in WKT format, WGS84: Example - `POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))`
+- Workspace: The directory which InVEST will use to run the operations
+- Path to your [k.LAB Certificate](https://klab.integratedmodelling.org/get-started/), after the user has registered as a k.LAB user (your user defines groups to which you belong, giving access to different data and models). This points to the k.LAB Engine one wishes to connect to. By default, it should point to the local engine running in the `http://127.0.0.1:8283`. 
+- Spatial Context in [WKT format](https://mapscaping.com/a-guide-to-wkt-in-gis/), WGS84 coordinate reference system: Example - `POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))`
 - Year: Example - 2020
-- Semantic Query: Example - `geography:Elevation` or `distance to infrastructure:Highway`. For further information on syntax and semantics of kim (a DSL based on xtext to develop k.LAB Models) please refer to the official technical documentation of k.LAB.
+- Semantic Query: This describes the scientific observable that k.LAB will search for from its federated data and model resources. k.LAB _resolves_ your query by identifying the most appropriate dataset(s) and model(s) for your spatiotemporal request, executes any needed modeling workflow, and returns results. Example - `geography:Elevation` or `distance to infrastructure:Highway`. For further information on syntax and semantics of kim (a DSL based on xtext to develop k.LAB Models) please refer to [k.LAB's technical documentation](https://confluence.integratedmodelling.org/spaces/KIM/pages/20054136/0.2+The+k.IM+language+and+semantic+modelling) (accessible once logged in using your k.LAB user ID and password). It is critical that your semantic query exactly matches the annotation of relevant data and models, in order for the resolution process to work correctly. Since the number of inputs and outputs of InVEST models is relatively limited, it should be possible to develop a shared list of semantic annotations for these inputs and outputs, particularly for the most frequently used InVEST models. Please post questions [here](https://confluence.integratedmodelling.org/questions) if you have questions or would like to request help on semantic annotations for specific InVEST model input/output data.
 
-The Semantic Query is resolved by the k.LAB Engine (Remote or Local), and the result becomes available in `result.tif` in the Workspace. 
+The Semantic Query is resolved by the k.LAB Engine (Remote or Local), and the result becomes available as `result.tif` in the user-selected Workspace. 
 
 This Plugin is built on the k.LAB Python Client: https://github.com/integratedmodelling/klab-client-python, which is open-source, using the AGPL-3.0 license.
 
