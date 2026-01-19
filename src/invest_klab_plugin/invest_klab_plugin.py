@@ -84,8 +84,7 @@ MODEL_SPEC = spec.ModelSpec(
                 '(e.g. WGS84).'),
             required=True,
             fields=[],
-            geometry_types={'POLYGON', 'MULTIPOLYGON'},
-            projected=True
+            geometry_types={'POLYGON', 'MULTIPOLYGON'}
         ),
 
         spec.StringInput(
