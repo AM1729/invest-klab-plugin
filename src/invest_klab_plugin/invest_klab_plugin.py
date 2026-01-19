@@ -200,14 +200,8 @@ def _check_lonlat_coords(vector_path):
     Validates that the AOI vector file uses geographic coordinates 
     (longitude and latitude in decimal degrees). Raises a ValueError if not.
     Works with shapefiles, including zipped shapefiles.
-    """
-
-    vector_path = vector_path.replace("\\", "/")
-    # GeoPandas can read zipped shapefiles with the 'zip://' prefix
-    if vector_path.lower().endswith(".zip"):
-        gdf = gpd.read_file(f"zip://{vector_path}")
-    else:
-        gdf = gpd.read_file(vector_path)
+    """    
+    gdf = gpd.read_file(vector_path)
     
     if gdf.crs is None:
         raise ValueError(
@@ -230,9 +224,8 @@ def build_spatial_context_wkt(vector_path):
     Assumes the vector file uses geographic coordinates (longitude and latitude in decimal degrees).
     Returns a string in the format "EPSG:4326 <WKT_GEOMETRY>, which is consumable for k.LAB".
     '''
-    vector_path = vector_path.replace("\\", "/")
-    gdf = gpd.read_file(f"zip://{vector_path}")
+    gdf = gpd.read_file(vector_path)
     if gdf.crs.to_epsg() != 4326:
         gdf = gdf.to_crs(epsg=4326)
-    wkt_geom = gdf.geometry.iloc[0].wkt
+    wkt_geom = gdf.geometry.iloc[0].wkt ## Only one geometry element 
     return f"EPSG:4326 {wkt_geom}"
