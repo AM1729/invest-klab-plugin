@@ -201,6 +201,8 @@ def _check_lonlat_coords(vector_path):
     (longitude and latitude in decimal degrees). Raises a ValueError if not.
     Works with shapefiles, including zipped shapefiles.
     """
+
+    vector_path = vector_path.replace("\\", "/")
     # GeoPandas can read zipped shapefiles with the 'zip://' prefix
     if vector_path.lower().endswith(".zip"):
         gdf = gpd.read_file(f"zip://{vector_path}")
@@ -228,7 +230,7 @@ def build_spatial_context_wkt(vector_path):
     Assumes the vector file uses geographic coordinates (longitude and latitude in decimal degrees).
     Returns a string in the format "EPSG:4326 <WKT_GEOMETRY>, which is consumable for k.LAB".
     '''
-
+    vector_path = vector_path.replace("\\", "/")
     gdf = gpd.read_file(f"zip://{vector_path}")
     if gdf.crs.to_epsg() != 4326:
         gdf = gdf.to_crs(epsg=4326)
