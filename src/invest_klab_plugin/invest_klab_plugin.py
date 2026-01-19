@@ -18,7 +18,7 @@ from klab.utils import Export, ExportFormat
 import asyncio
 import os
 from shapely import wkt
-from osgeo import ogr
+from osgeo import ogr, osr
 
 LOGGER = logging.getLogger(__name__)
 STANDARD_PATH = os.path.join(os.path.expanduser('~'), ".klab", "testcredentials.properties")
@@ -220,9 +220,35 @@ def build_spatial_context_wkt(vector_path):
     '''
     Builds a WKT representation of the spatial context from the given vector file.
     Assumes the vector file uses geographic coordinates (longitude and latitude in decimal degrees).
+    Uses GDAL's vsizip driver to read zipped shapefiles.
+    Returns a string in the format "EPSG:4326 <WKT_GEOMETRY>, which is consumable for k.LAB".
     '''
-    ds = ogr.Open(vector_path)
+    ds = ogr.Open(f"/vsizip/{vector_path}")
+    if ds is None:
+        raise RuntimeError("Could not open ZIP shapefile")
+
     layer = ds.GetLayer()
-    geom = layer.GetSpatialRef()
-    wkt_representation = geom.ExportToWkt()
-    return "EPSG:4326 " + wkt_representation
+    feature = layer.GetNextFeature()
+    if feature is None:
+        raise RuntimeError("No feature found in layer")
+
+    geom = feature.GetGeometryRef().Clone()
+
+    # Source CRS
+    source_srs = layer.GetSpatialRef()
+    if source_srs is None:
+        raise RuntimeError("Layer has no CRS")
+
+    # Target CRS EPSG:4326
+    target_srs = osr.SpatialReference()
+    target_srs.ImportFromEPSG(4326)
+
+    # Reproject only if needed
+    if not source_srs.IsSame(target_srs):
+        transform = osr.CoordinateTransformation(source_srs, target_srs)
+        geom.Transform(transform)
+
+    # Export geometry to WKT
+    wkt_geom = geom.ExportToWkt()
+
+    result = f"EPSG:4326 {wkt_geom}"
