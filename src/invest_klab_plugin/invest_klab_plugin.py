@@ -175,17 +175,17 @@ async def ARIES_request(klab: Klab, area_WKT: str, obs_res: str, obs_year: int, 
     obsData = Observable.create(observable)
     ticketHandler = context.submit(obsData)
 
+    data = await ticketHandler.get()
+
+    # retrieve the dataset and export to disk
+    data.exportToFile(Export.DATA, export_format, export_path)
+
     dataflow = context.getDataflow(ExportFormat.KDL_CODE)
     provenenace = context.getProvenance(True, ExportFormat.ELK_GRAPH_JSON)
 
     print (dataflow)
     print ("===========================")
     print (provenenace)
-
-    data = await ticketHandler.get()
-
-    # retrieve the dataset and export to disk
-    data.exportToFile(Export.DATA, export_format, export_path)
 
 def get_klab_instance(fpath: str = STANDARD_PATH) -> Klab:
     try:
