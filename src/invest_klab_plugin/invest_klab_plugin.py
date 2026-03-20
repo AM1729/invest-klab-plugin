@@ -21,7 +21,7 @@ from shapely import wkt
 import geopandas as gpd
 
 LOGGER = logging.getLogger(__name__)
-STANDARD_PATH = os.path.join(os.path.expanduser('~'), ".klab", "testcredentials.properties")
+STANDARD_PATH = os.path.join(os.path.expanduser('~'), ".klab", "credentials.properties")
 
 MODEL_SPEC = spec.ModelSpec(
     model_id="klab",
@@ -42,8 +42,10 @@ MODEL_SPEC = spec.ModelSpec(
 
         spec.StringInput(
             id = "klab_certificate_path",
-            name = gettext("Klab Certificate Path"),
-            about = gettext("Path to the klab certificate file")
+            name = gettext("Klab Certificate Path or Path to your Credentials file"),
+            about = gettext("Path to the credentials File consisting of your Username, Password and Remote Server URL in case one wants to connect to a Remote Server" \
+            "instead of running the Engine Locally, but this can work with Local Engine, if the Server URL is set to http://localhost:8283" \
+            "Alternatively, Path to k.LAB Certificate can be provided")
         ),
 
         spec.DirectoryInput(
