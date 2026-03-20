@@ -42,8 +42,8 @@ MODEL_SPEC = spec.ModelSpec(
         spec.N_WORKERS,
 
         spec.StringInput(
-            id = "klab_certificate_path",
-            name = gettext("Klab Certificate Path or Path to your Credentials file"),
+            id = "klab_auth_path",
+            name = gettext("Path to your k.LAB Certificate or Path to your Credentials file"),
             about = gettext("Path to the credentials File consisting of your Username, Password and Remote Server URL in case one wants to connect to a Remote Server" \
             "instead of running the Engine Locally, but this can work with Local Engine, if the Server URL is set to http://localhost:8283" \
             "Alternatively, Path to k.LAB Certificate can be provided")
@@ -75,8 +75,7 @@ MODEL_SPEC = spec.ModelSpec(
             name='Area of Interest',
             about=gettext(
                 'Path to a GDAL polygon vector representing the Area of Interest '
-                '(AOI). Coordinates represented by longitude, latitude decimal degrees '
-                '(e.g. WGS84).'),
+                '(AOI).'),
             required=True,
             fields=[],
             geometry_types={'POLYGON', 'MULTIPOLYGON'}

@@ -16,9 +16,21 @@ Work is also underway to enable InVEST Python code to be directly called using k
 ### Specifications
 For each use, the k.LAB-InVEST Plugin user is required to specify:
 - Workspace: The directory which InVEST will use to run the operations
-- Path to your [k.LAB Certificate](https://klab.integratedmodelling.org/get-started/), after the user has registered for k.LAB (your user defines groups to which you belong, giving access to different data and models). This points to the k.LAB Engine one wishes to connect to. By default, it should point to the local engine running in the `http://127.0.0.1:8283`. 
-- Spatial Context: Two approaches can be used here. First and simplest for most users, a path to a vector `.shp` file can be provided. The supplied geometry is reprojected to EPSG:4326 (WGS84 coordinate reference system, CRS) if not already in that CRS, and a corresponding [WKT string](https://mapscaping.com/a-guide-to-wkt-in-gis/) is generated, e.g.,`POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))`. This triggers the observation of the specified semantic concept by k.LAB. Alternatively, you can directly supply a WKT string representing their area of interest.
+- Path to your [k.LAB Certificate](https://klab.integratedmodelling.org/get-started/), after the user has registered for k.LAB (your user defines groups to which you belong, giving access to different data and models). <br>
+Or, alternatively path to the `.properties` file (By default: `$HOME/.klab/credentials.properties`) that contains your Username, Password and the URL of the Engine you wish to connect to.
+The Properties file should look like:
+```
+username=<your username>
+password=<your password>
+engine=<link to the remote engine>
+```
+The `engine` points to the k.LAB Engine one wishes to connect to, by default, it should point to the local engine running in the `http://127.0.0.1:8283`. <br>
+If a remote engine url is supplied, like: `https://developers.integratedmodelling.org/modeler`, we first try to connect to that, and if it fails, then the fallback is to try to connect to the local engine.
+
+- Spatial Context: A path to a vector `.shp` file can be provided. The supplied geometry is reprojected to EPSG:4326 (WGS84 coordinate reference system, CRS) if not already in that CRS, and a corresponding [WKT string](https://mapscaping.com/a-guide-to-wkt-in-gis/) is generated, e.g.,`POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))`. This triggers the observation of the specified semantic concept by k.LAB.
+
 - Year: For temporally dynamic data, the relevant year for your analysis. Example - entering 2018 will return data for the year 2018, if annual data are available for that year. If data availability is irregular (e.g., data in 5-year intervals from 2000-2020), k.LAB will return the closest match to the requested year - e.g., 2020 data would be returned rather than data for 2000, 2005, 2010, or 2015.
+
 - Semantic Query: This describes the scientific observable that k.LAB will search for from its federated data and model resources. k.LAB _resolves_ your query by identifying the most appropriate dataset(s) and model(s) for your spatiotemporal request, executes any needed modeling workflow, and returns results. Example - `geography:Elevation` or `distance to infrastructure:Highway`. For further information on syntax and semantics of kim (a DSL based on xtext to develop k.LAB Models) please refer to [k.LAB's technical documentation](https://confluence.integratedmodelling.org/spaces/KIM/pages/20054136/0.2+The+k.IM+language+and+semantic+modelling) (accessible once logged in using your k.LAB user ID and password). It is critical that your semantic query exactly matches the annotation of relevant data and models, in order for the resolution process to work correctly. Since the number of inputs and outputs of InVEST models is relatively limited, it should be possible to develop a shared list of semantic annotations for these inputs and outputs, particularly for the most frequently used InVEST models (see below for examples, based on the InVEST seasonal water yield model). Please post questions [here](https://confluence.integratedmodelling.org/questions), including help requests on semantic annotations for specific InVEST model input/output data.
 
 The Semantic Query is resolved by the k.LAB Engine (Remote or Local), and the result becomes available as `result.tif` in your user-selected Workspace. 
