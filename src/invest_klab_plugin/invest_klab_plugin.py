@@ -22,6 +22,7 @@ import geopandas as gpd
 
 LOGGER = logging.getLogger(__name__)
 STANDARD_PATH = os.path.join(os.path.expanduser('~'), ".klab", "credentials.properties")
+EARTH_REGION_SEMANTICS = "earth:Region"
 
 MODEL_SPEC = spec.ModelSpec(
     model_id="klab",
@@ -59,14 +60,6 @@ MODEL_SPEC = spec.ModelSpec(
             must_exist=False,
             permissions="rwx"
         ),
-
-       ## spec.StringInput(
-       ##     id="klab_engine_url",
-       ##     name = gettext("Klab Engine URL"),
-       ##     about = gettext(
-       ##         "URL of the klab engine to connect to, " \
-       ##         "Defaults to Local K.LAB Engine"),
-       ## ),
 
         spec.StringInput(
             id="kim_semantic_query",
@@ -109,7 +102,6 @@ MODEL_SPEC = spec.ModelSpec(
 
 def execute(args):
     LOGGER.info("Starting k.LAB Plugin Model")
-    ##klab_engine_url = args.get('klab_engine_url', 'http://localhost:8080')
     klab_certificate_path = args.get('klab_certificate_path', None)
     year = int(args['year'])
     semantic_query = args['kim_semantic_query']
@@ -161,11 +153,9 @@ def validate(args, limit_to=None):
 async def ARIES_request(klab: Klab, area_WKT: str, obs_res: str, obs_year: int, observable: str,
                         export_format: ExportFormat, export_path: str):
     
-    # create the semantic type and geometry/time to init the CONTEXT
     obs = Observable.create("earth:Region")
     grid = GeometryBuilder().grid(urn=area_WKT, resolution=obs_res).years(obs_year).build()
 
-    # submit to engine to generate the CONTEXT
     ticketHandler = klab.submit(obs, grid)
     context = await ticketHandler.get()
 
