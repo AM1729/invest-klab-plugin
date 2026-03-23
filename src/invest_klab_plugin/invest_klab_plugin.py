@@ -34,7 +34,7 @@ MODEL_SPEC = spec.ModelSpec(
         ['kim_semantic_query'],
         ['spatial_context'],
         ['year'],
-        ['klab_certificate_path']],
+        ['klab_auth_path']],
 
     inputs=[
         spec.WORKSPACE,
