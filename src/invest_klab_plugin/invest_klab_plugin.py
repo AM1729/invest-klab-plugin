@@ -28,7 +28,7 @@ MODEL_SPEC = spec.ModelSpec(
     model_id="klab",
     model_title=gettext("klab Plugin"),
     module_name=__name__,
-    userguide='https://github.com/AM1729/invest-klab-plugin/blob/main/README.md',
+    userguide='https://github.com/integratedmodelling/invest-klab-plugin/blob/main/README.md',
     input_field_order=[
         ['workspace_dir', 'results_suffix'],
         ['kim_semantic_query'],
