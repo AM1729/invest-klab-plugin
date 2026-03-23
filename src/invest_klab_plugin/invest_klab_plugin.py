@@ -41,12 +41,12 @@ MODEL_SPEC = spec.ModelSpec(
         spec.SUFFIX,
         spec.N_WORKERS,
 
-        spec.StringInput(
+        spec.FileInput(
             id = "klab_auth_path",
-            name = gettext("Path to your k.LAB Certificate or Path to your Credentials file"),
-            about = gettext("Path to the credentials File consisting of your Username, Password and Remote Server URL in case one wants to connect to a Remote Server"
-            "instead of running the Engine Locally, but this can work with Local Engine, if the Server URL is set to http://localhost:8283"
-            "Alternatively, Path to k.LAB Certificate can be provided")
+            name = gettext("Path to your k.LAB Remote Engine Credentials"),
+            about = gettext("Path to the credentials File consisting of your Username, Password and Remote Server URL "
+            "in case one wants to connect to a Remote Server."
+            "Default: Local Engine, http://localhost:8283/modeler")
         ),
 
         spec.DirectoryInput(
@@ -99,7 +99,7 @@ MODEL_SPEC = spec.ModelSpec(
 
 def execute(args):
     LOGGER.info("Starting k.LAB Plugin Model")
-    klab_certificate_path = args.get('klab_certificate_path', None)
+    klab_certificate_path = args.get('klab_auth_path', None)
     year = int(args['year'])
     semantic_query = args['kim_semantic_query']
     spatial_context_wkt = build_spatial_context_wkt(args['spatial_context'])
@@ -176,16 +176,24 @@ async def ARIES_request(klab: Klab, area_WKT: str, obs_res: str, obs_year: int, 
     print ("===========================")
     print (provenenace)
 
-def get_klab_instance(fpath: str = STANDARD_PATH) -> Klab:
-    try:
-        print('- try Remote Engine connection ....')
-        klab = Klab.create(credentialsFile=fpath)
-    except:
+def get_klab_instance(fpath: str = None) -> Klab:
+    if not fpath:
         try:
-            print('- try Local Engine connection ...')
+            print("Trying Local Engine connection since a credentials file wasn't supplied ")
             klab = Klab.create()
         except:
-            raise RuntimeError('Could not establish connection to a k.lab engine')
+            raise RuntimeError('Could not establish connection to Remote k.lab engine')
+        
+    else:
+        try:
+            print('Trying Remote Engine connection as provided ')
+            klab = Klab.create(credentialsFile=fpath)
+        except:
+            try:
+                print('Try Local Engine connection since an attempt was made to connect to the Remote Server and it failed')
+                klab = Klab.create()
+            except:
+                raise RuntimeError('Could not establish connection to a k.lab engine')
 
     if klab and klab.isOnline():
         print(f'* connection to {klab.engine.url} was successfully established. session: {klab.engine.session}')
