@@ -16,16 +16,16 @@ Work is also underway to enable InVEST Python code to be directly called using k
 ### Specifications
 For each use, the k.LAB-InVEST Plugin user is required to specify:
 - Workspace: The directory which InVEST will use to run the operations
-- Path to your [k.LAB Auth Credentials](https://klab.integratedmodelling.org/get-started/), after the user has registered for k.LAB (your user defines groups to which you belong, giving access to different data and models). The `.properties` file (Should be located by default: `$HOME/.klab/credentials.properties`) that contains your Username, Password and the URL of the Engine you wish to connect to.
+- Path to your [k.LAB Authorization Credentials](https://klab.integratedmodelling.org/get-started/), after the user has registered for k.LAB (your user defines groups to which you belong, giving access to different data and models). The `.properties` file contains your Username, Password and the URL of the Engine you wish to connect to. Its default location is `$HOME/.klab/credentials.properties`).
 The Properties file should look like:
 ```
 username=<your username>
 password=<your password>
 engine=<link to the remote engine>
 ```
-The `engine` points to the k.LAB Engine one wishes to connect to.
-If a remote engine url is supplied, like: `https://integratedmodelling.org/modeler`
-Or if an user has started the k.LAB Engine locally, then if it's kept empty, then it would try to connect to the local engine.
+The `engine` points to the k.LAB Engine you wishe to connect to.
+This could be a remote engine like: `https://integratedmodelling.org/modeler`
+or if an user is running the k.LAB Engine locally, it's kept empty, and the plugin will connect to the local engine.
 
 - Spatial Context: A path to a vector `.shp` file can be provided. The supplied geometry is reprojected to EPSG:4326 (WGS84 coordinate reference system, CRS) if not already in that CRS, and a corresponding [WKT string](https://mapscaping.com/a-guide-to-wkt-in-gis/) is generated internally, e.g.,`POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))`. This triggers the observation of the specified semantic concept by k.LAB. The `.shp` file can have the geometry in any projection.
 
