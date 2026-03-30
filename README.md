@@ -25,7 +25,7 @@ engine=<link to the remote engine>
 ```
 The `engine` points to the k.LAB Engine one wishes to connect to.
 If a remote engine url is supplied, like: `https://integratedmodelling.org/modeler`
-If an user has started the k.LAB Engine locally, then if it's kept empty, then it would try to connect to the local engine.
+Or if an user has started the k.LAB Engine locally, then if it's kept empty, then it would try to connect to the local engine.
 
 - Spatial Context: A path to a vector `.shp` file can be provided. The supplied geometry is reprojected to EPSG:4326 (WGS84 coordinate reference system, CRS) if not already in that CRS, and a corresponding [WKT string](https://mapscaping.com/a-guide-to-wkt-in-gis/) is generated, e.g.,`POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))`. This triggers the observation of the specified semantic concept by k.LAB.
 
