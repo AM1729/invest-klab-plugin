@@ -27,7 +27,7 @@ The `engine` points to the k.LAB Engine one wishes to connect to.
 If a remote engine url is supplied, like: `https://integratedmodelling.org/modeler`
 Or if an user has started the k.LAB Engine locally, then if it's kept empty, then it would try to connect to the local engine.
 
-- Spatial Context: A path to a vector `.shp` file can be provided. The supplied geometry is reprojected to EPSG:4326 (WGS84 coordinate reference system, CRS) if not already in that CRS, and a corresponding [WKT string](https://mapscaping.com/a-guide-to-wkt-in-gis/) is generated internally, e.g.,`POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))`. This triggers the observation of the specified semantic concept by k.LAB. The `.shp` file can have the geometry in any projection.
+- Spatial Context: A path to a vector `.shp` file can be provided. The supplied geometry is reprojected to EPSG:4326 (WGS84 coordinate reference system, CRS) if not already in that CRS, and a corresponding [WKT string](https://mapscaping.com/a-guide-to-wkt-in-gis/) is generated internally, e.g.,`POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))`. This triggers the observation of the specified semantic concept by k.LAB. The `.shp` file can have the geometry in any EPSG projection.
 
 - Year: For temporally dynamic data, the relevant year for your analysis. Example - entering 2018 will return data for the year 2018, if annual data are available for that year. If data availability is irregular (e.g., data in 5-year intervals from 2000-2020), k.LAB will return the closest match to the requested year - e.g., 2020 data would be returned rather than data for 2000, 2005, 2010, or 2015.
 
