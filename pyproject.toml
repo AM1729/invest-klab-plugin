@@ -15,7 +15,7 @@ dependencies = [
   "pygeoprocessing",
   "natcap.invest>=3.17.0",
   "shapely>=2.0.7",
-  "klab-client-py"
+  "klab-client-py>=0.2.2"
 ]
 
 [tool.setuptools_scm]
