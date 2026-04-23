@@ -168,7 +168,6 @@ async def ARIES_request(klab: Klab, area_WKT: str, obs_res: str, obs_year: int, 
 
     if data.isEmpty():
         print("Observation is empty, possibly Engine unable to resolve the Semantic Query, no data to export.")
-        return
     
     else:
 
