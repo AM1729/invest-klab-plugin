@@ -166,15 +166,21 @@ async def ARIES_request(klab: Klab, area_WKT: str, obs_res: str, obs_year: int, 
 
     data = await ticketHandler.get()
 
-    # retrieve the dataset and export to disk
-    data.exportToFile(Export.DATA, export_format, export_path)
+    if data.isEmpty():
+        print("Observation is empty, possibly Engine unable to resolve the Semantic Query, no data to export.")
+        return
+    
+    else:
 
-    dataflow = context.getDataflow(ExportFormat.KDL_CODE)
-    provenenace = context.getProvenance(True, ExportFormat.ELK_GRAPH_JSON)
+        # retrieve the dataset and export to disk
+        data.exportToFile(Export.DATA, export_format, export_path)
 
-    print (dataflow)
-    print ("===========================")
-    print (provenenace)
+        dataflow = context.getDataflow(ExportFormat.KDL_CODE)
+        provenenace = context.getProvenance(True, ExportFormat.ELK_GRAPH_JSON)
+
+        print (dataflow)
+        print ("===========================")
+        print (provenenace)
 
 def get_klab_instance(fpath: str = None) -> Klab:
     if not fpath:
