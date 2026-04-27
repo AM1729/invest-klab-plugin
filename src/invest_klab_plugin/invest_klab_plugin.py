@@ -175,9 +175,13 @@ async def ARIES_request(klab: Klab, area_WKT: str, obs_res: str, obs_year: int, 
     else:
 
         observation.exportToFile(Export.DATA, export_format, export_path)
-        provenance = context.getProvenance(True, ExportFormat.ELK_GRAPH_JSON)
+        dataflow = context.getDataflow(ExportFormat.KDL_CODE)
 
-        LOGGER.info("Following Resources were used in Resolution of the Semantic Query and generation of the Observation:")
+        LOGGER.info("Dataflow of the k.LAB Engine Resolution:")
+        LOGGER.info(dataflow)
+
+        provenance = context.getProvenance(True, ExportFormat.ELK_GRAPH_JSON)
+        LOGGER.info("Following Resources were used in Resolution of the Semantic Query from the Provenance:")
 
         if context.getResources():
             for resource in context.getResources():
