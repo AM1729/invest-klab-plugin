@@ -16,7 +16,7 @@ Work is also underway to enable InVEST Python code to be directly called using k
 ### Specifications
 For each use, the k.LAB-InVEST Plugin user is required to specify:
 - Workspace: The directory which InVEST will use to run the operations
-- Path to your [k.LAB Authorization Credentials](https://klab.integratedmodelling.org/get-started/), after the user has registered for k.LAB (your user defines groups to which you belong, giving access to different data and models). The `.properties` file contains your Username, Password and the URL of the Engine you wish to connect to. Its default location is `$HOME/.klab/credentials.properties`).
+- Path to your [k.LAB Authorization Credentials](https://klab.integratedmodelling.org/get-started/), after the user has registered for k.LAB (your user defines groups to which you belong, giving access to different data and models). The `.properties` file contains your Username, Password and the URL of the Engine you wish to connect to. Its default location is `$HOME/.klab/credentials.properties`.
 The Properties file should look like:
 ```
 username=<your username>
@@ -33,7 +33,9 @@ or if an user is running the k.LAB Engine locally, it's kept empty, and the plug
 
 - Semantic Query: This describes the scientific observable that k.LAB will search for from its federated data and model resources. k.LAB _resolves_ your query by identifying the most appropriate dataset(s) and model(s) for your spatiotemporal request, executes any needed modeling workflow, and returns results. Example - `geography:Elevation` or `distance to infrastructure:Highway`. For further information on syntax and semantics of kim (a DSL based on xtext to develop k.LAB Models) please refer to [k.LAB's technical documentation](https://confluence.integratedmodelling.org/spaces/KIM/pages/20054136/0.2+The+k.IM+language+and+semantic+modelling) (accessible once logged in using your k.LAB user ID and password). It is critical that your semantic query exactly matches the annotation of relevant data and models, in order for the resolution process to work correctly. Since the number of inputs and outputs of InVEST models is relatively limited, it should be possible to develop a shared list of semantic annotations for these inputs and outputs, particularly for the most frequently used InVEST models (see below for examples, based on the InVEST seasonal water yield model). Please post questions [here](https://confluence.integratedmodelling.org/questions), including help requests on semantic annotations for specific InVEST model input/output data.
 
-The Semantic Query is resolved by the k.LAB Engine (Remote or Local), and the result becomes available as `result.tif` in your user-selected Workspace. 
+The Semantic Query is resolved by the k.LAB Engine (Remote or Local), and the result becomes available as `result.tif` in your user-selected Workspace. The Provenance record is made available as `provenance.html` which can be opened in any browser (Chrome, Mozilla, Safari etc.)
+
+Furthermore, the Dataflow information is also presented in the logs which shows how the System was able to resolve the Semantic Query utilising the Models and Assets available to the user, and the further processing the k.LAB agent had to do (For instance: Classify, or Using a LookUp table, or Using a specific algorithm to contextualize etc.), and the Resources that were selected by the k.LAB Agent to resolve the semantic query would be added in the logs, with the Resource URN i.e. an unique identifier for the Resource in the k.LAB Semantic Web of GeoSpatial Data Assets and Models, and if applicable a Description of the Data, URL of the data if present, and the Creators of the Data. 
 
 This Plugin is built on the k.LAB Python Client: https://github.com/integratedmodelling/klab-client-python, which is open-source, using the AGPL-3.0 license.
 
