@@ -18,6 +18,7 @@ import json
 import logging
 from shapely import wkt
 import geopandas as gpd
+from markdownify import markdownify as md
 
 LOGGER = logging.getLogger(__name__)
 STANDARD_PATH = os.path.join(os.path.expanduser('~'), ".klab", "credentials.properties")
@@ -122,7 +123,7 @@ def execute(args):
             observable=semantic_query,
             export_format=ExportFormat.BYTESTREAM,
             export_path=os.path.join(args['workspace_dir'], "result.tif"),
-            provenance_export_path=os.path.join(args['workspace_dir'], "provenance.json")
+            provenance_export_path=os.path.join(args['workspace_dir'], "provenance.html")
         ))
 
     except Exception as e:
@@ -176,10 +177,10 @@ async def ARIES_request(klab: Klab, area_WKT: str, obs_res: str, obs_year: int, 
         provenance = context.getProvenance(True, ExportFormat.ELK_GRAPH_JSON)
 
         LOGGER.info("Following Resources were used in Resolution of the Semantic Query and generation of the Observation:")
-        
+
         for resource in context.getResources():
             LOGGER.info(f" Resource ID (URN in k.LAB Semantic Web): {resource.id}")
-            LOGGER.info(f" Resource Description: {resource.description}")
+            LOGGER.info(f" Resource Description: {md(resource.description)}")
             LOGGER.info(f" Resource Authors: {', '.join(resource.authors)}")
 
 

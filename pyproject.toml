@@ -50,5 +50,6 @@ conda_dependencies = [
   "gdal<3.11",  # missing libgdal.so issue happened with gdal 3.11
   "geotiff>=1.7.3",  # earlier versions don't support space in CONDA_PREFIX
   "natcap.invest>=3.17.0",  # install from conda-forge rather than building wheel with pip
-   "geopandas"
+   "geopandas",
+   "markdownify>=1.2.2" # for parsing mardowns
 ]
