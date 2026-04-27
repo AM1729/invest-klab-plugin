@@ -1,6 +1,3 @@
-import logging
-import os
-
 ## Natcap Imports
 from natcap.invest import validation
 from natcap.invest import utils
@@ -17,6 +14,8 @@ from klab.utils import Export, ExportFormat
 
 import asyncio
 import os
+import json
+import logging
 from shapely import wkt
 import geopandas as gpd
 
@@ -92,6 +91,13 @@ MODEL_SPEC = spec.ModelSpec(
             path="result.tif",
             about="Generated Raster after k.LAB Resolved the Semantic Query",
             data_type=float,
+        ),
+
+        spec.FileOutput(
+            id='provenance',
+            path='provenance.json',
+            about=gettext(
+                'Exported Provenance of the k.LAB Context in JSON format, including the dataflow and the engine provenance graph')
         )
     ]
 )
@@ -115,7 +121,8 @@ def execute(args):
             obs_year=year,
             observable=semantic_query,
             export_format=ExportFormat.BYTESTREAM,
-            export_path=os.path.join(args['workspace_dir'], "result.tif")
+            export_path=os.path.join(args['workspace_dir'], "result.tif"),
+            provenance_export_path=os.path.join(args['workspace_dir'], "provenance.json")
         ))
 
     except Exception as e:
@@ -147,8 +154,9 @@ def validate(args, limit_to=None):
 
     return validation.validate(args, MODEL_SPEC)
 
+
 async def ARIES_request(klab: Klab, area_WKT: str, obs_res: str, obs_year: int, observable: str,
-                        export_format: ExportFormat, export_path: str):
+                        export_format: ExportFormat, export_path: str, provenance_export_path: str = None):
     
     obs = Observable.create("earth:Region")
     grid = GeometryBuilder().grid(urn=area_WKT, resolution=obs_res).years(obs_year).build()
@@ -156,30 +164,31 @@ async def ARIES_request(klab: Klab, area_WKT: str, obs_res: str, obs_year: int, 
     ticketHandler = klab.submit(obs, grid)
     context = await ticketHandler.get()
 
-    dataflow = context.getDataflow(ExportFormat.KDL_CODE)
-    provenenace = context.getProvenance(True, ExportFormat.ELK_GRAPH_JSON)
+    ticketHandler = context.submit(Observable.create(observable))
+    observation = await ticketHandler.get()
 
-
-    # define the observable (dataset or model) and submit to context
-    obsData = Observable.create(observable)
-    ticketHandler = context.submit(obsData)
-
-    data = await ticketHandler.get()
-
-    if data.isEmpty():
-        print("Observation is empty, possibly Engine unable to resolve the Semantic Query, no data to export.")
+    if observation.isEmpty():
+        LOGGER.error("Observation is empty, possibly Engine unable to resolve the Semantic Query, no data to export.")
     
     else:
 
-        # retrieve the dataset and export to disk
-        data.exportToFile(Export.DATA, export_format, export_path)
+        observation.exportToFile(Export.DATA, export_format, export_path)
+        provenance = context.getProvenance(True, ExportFormat.ELK_GRAPH_JSON)
 
-        dataflow = context.getDataflow(ExportFormat.KDL_CODE)
-        provenenace = context.getProvenance(True, ExportFormat.ELK_GRAPH_JSON)
+        LOGGER.info("Following Resources were used in Resolution of the Semantic Query and generation of the Observation:")
+        for resource in context.getResources():
+            LOGGER.info(f" Resouce ID (URN in k.LAB Semantic Web): {resource.id}")
+            LOGGER.info(f" Resouce Description: {resource.description}")
+            LOGGER.info(f" Resouce Authors: {resource.authors}")
 
-        print (dataflow)
-        print ("===========================")
-        print (provenenace)
+
+        if provenance_export_path:
+            with open(provenance_export_path, "w", encoding="utf-8") as f:
+                try:
+                    json.dump(provenance, f, indent=2)
+                except TypeError:
+                    f.write(provenance)
+
 
 def get_klab_instance(fpath: str = None) -> Klab:
     if not fpath:
