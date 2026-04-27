@@ -95,9 +95,9 @@ MODEL_SPEC = spec.ModelSpec(
 
         spec.FileOutput(
             id='provenance',
-            path='provenance.json',
+            path='provenance.html',
             about=gettext(
-                'Exported Provenance of the k.LAB Context in JSON format, including the dataflow and the engine provenance graph')
+                'Exported Provenance of the k.LAB Context in HTML format, including the dataflow and the engine provenance graph')
         )
     ]
 )
@@ -176,18 +176,15 @@ async def ARIES_request(klab: Klab, area_WKT: str, obs_res: str, obs_year: int, 
         provenance = context.getProvenance(True, ExportFormat.ELK_GRAPH_JSON)
 
         LOGGER.info("Following Resources were used in Resolution of the Semantic Query and generation of the Observation:")
+        
         for resource in context.getResources():
-            LOGGER.info(f" Resouce ID (URN in k.LAB Semantic Web): {resource.id}")
-            LOGGER.info(f" Resouce Description: {resource.description}")
-            LOGGER.info(f" Resouce Authors: {resource.authors}")
+            LOGGER.info(f" Resource ID (URN in k.LAB Semantic Web): {resource.id}")
+            LOGGER.info(f" Resource Description: {resource.description}")
+            LOGGER.info(f" Resource Authors: {', '.join(resource.authors)}")
 
 
         if provenance_export_path:
-            with open(provenance_export_path, "w", encoding="utf-8") as f:
-                try:
-                    json.dump(provenance, f, indent=2)
-                except TypeError:
-                    f.write(provenance)
+            export_to_html(provenance, provenance_export_path)
 
 
 def get_klab_instance(fpath: str = None) -> Klab:
@@ -251,3 +248,113 @@ def build_spatial_context_wkt(vector_path):
         gdf = gdf.to_crs(epsg=4326)
     wkt_geom = gdf.geometry.iloc[0].wkt ## Only one geometry element 
     return f"EPSG:4326 {wkt_geom}"
+
+
+def export_to_html(provenance, output_path: str):
+    html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Dataflow Viewer</title>
+  <style>
+    body {{ margin: 0; overflow: hidden; font-family: Arial; }}
+    svg {{ width: 100vw; height: 100vh; background: #f5f5f5; }}
+    rect {{ fill: #e3f2fd; stroke: #1e88e5; stroke-width: 1.5; }}
+    text {{ font-size: 12px; pointer-events: none; }}
+    line {{ stroke: #333; stroke-width: 1.2; }}
+  </style>
+</head>
+<body>
+
+<svg id="canvas"></svg>
+
+<script>
+const data = {json.dumps(provenance)};
+
+const svg = document.getElementById("canvas");
+
+// Zoom + pan
+let viewBox = [0, 0, data.width || 800, data.height || 600];
+svg.setAttribute("viewBox", viewBox.join(" "));
+
+svg.addEventListener("wheel", (e) => {{
+  e.preventDefault();
+  const scale = e.deltaY > 0 ? 1.1 : 0.9;
+  viewBox[2] *= scale;
+  viewBox[3] *= scale;
+  svg.setAttribute("viewBox", viewBox.join(" "));
+}});
+
+let isPanning = false;
+let start = {{x:0,y:0}};
+
+svg.addEventListener("mousedown", e => {{
+  isPanning = true;
+  start = {{x: e.clientX, y: e.clientY}};
+}});
+
+svg.addEventListener("mousemove", e => {{
+  if (!isPanning) return;
+  const dx = (e.clientX - start.x);
+  const dy = (e.clientY - start.y);
+  viewBox[0] -= dx;
+  viewBox[1] -= dy;
+  svg.setAttribute("viewBox", viewBox.join(" "));
+  start = {{x: e.clientX, y: e.clientY}};
+}});
+
+svg.addEventListener("mouseup", () => isPanning = false);
+
+// Collect nodes
+function collectNodes(node, nodes) {{
+  if (node.x !== undefined && node.y !== undefined) {{
+    nodes.push(node);
+  }}
+  (node.children || []).forEach(child => collectNodes(child, nodes));
+}}
+
+const nodes = [];
+collectNodes(data, nodes);
+
+// Draw nodes
+nodes.forEach(n => {{
+  const x = n.x || 0;
+  const y = n.y || 0;
+  const w = n.width || 100;
+  const h = n.height || 40;
+
+  const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  rect.setAttribute("x", x);
+  rect.setAttribute("y", y);
+  rect.setAttribute("width", w);
+  rect.setAttribute("height", h);
+  svg.appendChild(rect);
+
+  const label = (n.labels && n.labels[0] && n.labels[0].text) || "";
+
+  const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  text.setAttribute("x", x + 5);
+  text.setAttribute("y", y + 20);
+  text.textContent = label;
+  svg.appendChild(text);
+}});
+
+// Draw edges
+(data.edges || []).forEach(edge => {{
+  (edge.sections || []).forEach(sec => {{
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", sec.startPoint.x);
+    line.setAttribute("y1", sec.startPoint.y);
+    line.setAttribute("x2", sec.endPoint.x);
+    line.setAttribute("y2", sec.endPoint.y);
+    svg.appendChild(line);
+  }});
+}});
+</script>
+
+</body>
+</html>
+"""
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(html_content)
