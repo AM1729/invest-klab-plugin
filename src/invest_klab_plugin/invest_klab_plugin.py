@@ -179,7 +179,7 @@ async def ARIES_request(klab: Klab, area_WKT: str, obs_res: str, obs_year: int, 
 
         LOGGER.info("Following Resources were used in Resolution of the Semantic Query and generation of the Observation:")
 
-        if context.getResouces() is not None:
+        if context.getResources():
             for resource in context.getResources():
                 LOGGER.info(f" Resource ID (URN in k.LAB Semantic Web): {resource.id}")
                 LOGGER.info(f" Resource Description: {md(resource.description)}")
