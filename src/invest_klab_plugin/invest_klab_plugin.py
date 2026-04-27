@@ -18,6 +18,7 @@ import json
 import logging
 from shapely import wkt
 import geopandas as gpd
+from pathlib import Path
 from markdownify import markdownify as md
 
 LOGGER = logging.getLogger(__name__)
@@ -178,10 +179,13 @@ async def ARIES_request(klab: Klab, area_WKT: str, obs_res: str, obs_year: int, 
 
         LOGGER.info("Following Resources were used in Resolution of the Semantic Query and generation of the Observation:")
 
-        for resource in context.getResources():
-            LOGGER.info(f" Resource ID (URN in k.LAB Semantic Web): {resource.id}")
-            LOGGER.info(f" Resource Description: {md(resource.description)}")
-            LOGGER.info(f" Resource Authors: {', '.join(resource.authors)}")
+        if context.getResouces() is not None:
+            for resource in context.getResources():
+                LOGGER.info(f" Resource ID (URN in k.LAB Semantic Web): {resource.id}")
+                LOGGER.info(f" Resource Description: {md(resource.description)}")
+                LOGGER.info(f" Resource Authors: {', '.join(resource.authors)}")
+        else:
+            LOGGER.warning("Unable to fetch resource information from k.LAB Engine")
 
 
         if provenance_export_path:
@@ -252,110 +256,166 @@ def build_spatial_context_wkt(vector_path):
 
 
 def export_to_html(provenance, output_path: str):
-    html_content = f"""
-<!DOCTYPE html>
+    if isinstance(provenance, str):
+        data_obj = json.loads(provenance)
+    else:
+        data_obj = provenance
+
+    data_js = json.dumps(data_obj)
+
+    html_content = f"""<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <title>Dataflow Viewer</title>
   <style>
-    body {{ margin: 0; overflow: hidden; font-family: Arial; }}
-    svg {{ width: 100vw; height: 100vh; background: #f5f5f5; }}
-    rect {{ fill: #e3f2fd; stroke: #1e88e5; stroke-width: 1.5; }}
-    text {{ font-size: 12px; pointer-events: none; }}
-    line {{ stroke: #333; stroke-width: 1.2; }}
+    body {{ margin: 0; overflow: hidden; font-family: Arial, sans-serif; }}
+    svg {{ width: 100vw; height: 100vh; background: #f5f5f5; cursor: grab; }}
+    .node {{ fill: #e3f2fd; stroke: #1e88e5; stroke-width: 1.5; }}
+    .container {{ fill: #ffffff; stroke: #9e9e9e; stroke-dasharray: 4 3; stroke-width: 1.2; }}
+    .edge {{ fill: none; stroke: #333; stroke-width: 1.2; }}
+    .label {{ font-size: 12px; pointer-events: none; user-select: none; fill: #111; }}
   </style>
 </head>
 <body>
-
 <svg id="canvas"></svg>
 
 <script>
-const data = {json.dumps(provenance)};
-
+const data = {data_js};
 const svg = document.getElementById("canvas");
 
-// Zoom + pan
 let viewBox = [0, 0, data.width || 800, data.height || 600];
 svg.setAttribute("viewBox", viewBox.join(" "));
 
+function setViewBox() {{
+  svg.setAttribute("viewBox", viewBox.join(" "));
+}}
+
+function clientToSvg(clientX, clientY) {{
+  const r = svg.getBoundingClientRect();
+  return {{
+    x: viewBox[0] + (clientX - r.left) * viewBox[2] / r.width,
+    y: viewBox[1] + (clientY - r.top) * viewBox[3] / r.height
+  }};
+}}
+
 svg.addEventListener("wheel", (e) => {{
   e.preventDefault();
-  const scale = e.deltaY > 0 ? 1.1 : 0.9;
-  viewBox[2] *= scale;
-  viewBox[3] *= scale;
-  svg.setAttribute("viewBox", viewBox.join(" "));
+  const zoom = e.deltaY > 0 ? 1.1 : 0.9;
+  const mouse = clientToSvg(e.clientX, e.clientY);
+
+  viewBox[0] = mouse.x - (mouse.x - viewBox[0]) * zoom;
+  viewBox[1] = mouse.y - (mouse.y - viewBox[1]) * zoom;
+  viewBox[2] *= zoom;
+  viewBox[3] *= zoom;
+
+  setViewBox();
 }});
 
 let isPanning = false;
-let start = {{x:0,y:0}};
+let start = {{ x: 0, y: 0 }};
 
-svg.addEventListener("mousedown", e => {{
+svg.addEventListener("mousedown", (e) => {{
   isPanning = true;
-  start = {{x: e.clientX, y: e.clientY}};
+  start = {{ x: e.clientX, y: e.clientY }};
+  svg.style.cursor = "grabbing";
 }});
 
-svg.addEventListener("mousemove", e => {{
+window.addEventListener("mousemove", (e) => {{
   if (!isPanning) return;
-  const dx = (e.clientX - start.x);
-  const dy = (e.clientY - start.y);
+  const r = svg.getBoundingClientRect();
+  const dx = (e.clientX - start.x) * viewBox[2] / r.width;
+  const dy = (e.clientY - start.y) * viewBox[3] / r.height;
+
   viewBox[0] -= dx;
   viewBox[1] -= dy;
-  svg.setAttribute("viewBox", viewBox.join(" "));
-  start = {{x: e.clientX, y: e.clientY}};
+  setViewBox();
+
+  start = {{ x: e.clientX, y: e.clientY }};
 }});
 
-svg.addEventListener("mouseup", () => isPanning = false);
+window.addEventListener("mouseup", () => {{
+  isPanning = false;
+  svg.style.cursor = "grab";
+}});
 
-// Collect nodes
 function collectNodes(node, nodes) {{
-  if (node.x !== undefined && node.y !== undefined) {{
-    nodes.push(node);
+  if (node && typeof node === "object") {{
+    if (node.x !== undefined && node.y !== undefined && node.width !== undefined && node.height !== undefined) {{
+      nodes.push(node);
+    }}
+    (node.children || []).forEach(child => collectNodes(child, nodes));
   }}
-  (node.children || []).forEach(child => collectNodes(child, nodes));
+}}
+
+function collectEdges(node, edges) {{
+  if (node && typeof node === "object") {{
+    (node.edges || []).forEach(edge => edges.push(edge));
+    (node.children || []).forEach(child => collectEdges(child, edges));
+  }}
+}}
+
+function edgePath(edge) {{
+  const paths = [];
+  (edge.sections || []).forEach(sec => {{
+    const pts = [sec.startPoint, ...(sec.bendPoints || []), sec.endPoint];
+    if (pts.length > 0) {{
+      let d = `M ${{pts[0].x}} ${{pts[0].y}}`;
+      for (let i = 1; i < pts.length; i++) {{
+        d += ` L ${{pts[i].x}} ${{pts[i].y}}`;
+      }}
+      paths.push(d);
+    }}
+  }});
+  return paths.join(" ");
 }}
 
 const nodes = [];
+const edges = [];
 collectNodes(data, nodes);
+collectEdges(data, edges);
 
-// Draw nodes
+edges.forEach(edge => {{
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("class", "edge");
+  path.setAttribute("d", edgePath(edge));
+  svg.appendChild(path);
+}});
+
 nodes.forEach(n => {{
   const x = n.x || 0;
   const y = n.y || 0;
   const w = n.width || 100;
   const h = n.height || 40;
+  const label = (n.labels && n.labels[0] && n.labels[0].text) || n.id || "";
+
+  const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  g.setAttribute("transform", `translate(${{x}},${{y}})`);
 
   const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-  rect.setAttribute("x", x);
-  rect.setAttribute("y", y);
+  rect.setAttribute("class", n.children && n.children.length ? "container" : "node");
+  rect.setAttribute("x", "0");
+  rect.setAttribute("y", "0");
   rect.setAttribute("width", w);
   rect.setAttribute("height", h);
-  svg.appendChild(rect);
-
-  const label = (n.labels && n.labels[0] && n.labels[0].text) || "";
+  rect.setAttribute("rx", "6");
+  rect.setAttribute("ry", "6");
+  g.appendChild(rect);
 
   const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-  text.setAttribute("x", x + 5);
-  text.setAttribute("y", y + 20);
+  text.setAttribute("class", "label");
+  text.setAttribute("x", w / 2);
+  text.setAttribute("y", h / 2);
+  text.setAttribute("text-anchor", "middle");
+  text.setAttribute("dominant-baseline", "middle");
   text.textContent = label;
-  svg.appendChild(text);
-}});
+  g.appendChild(text);
 
-// Draw edges
-(data.edges || []).forEach(edge => {{
-  (edge.sections || []).forEach(sec => {{
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", sec.startPoint.x);
-    line.setAttribute("y1", sec.startPoint.y);
-    line.setAttribute("x2", sec.endPoint.x);
-    line.setAttribute("y2", sec.endPoint.y);
-    svg.appendChild(line);
-  }});
+  svg.appendChild(g);
 }});
 </script>
-
 </body>
 </html>
 """
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write(html_content)
+
+    Path(output_path).write_text(html_content, encoding="utf-8")
