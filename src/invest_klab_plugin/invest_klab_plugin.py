@@ -50,18 +50,6 @@ MODEL_SPEC = spec.ModelSpec(
             "Default: Local Engine, http://localhost:8283/modeler")
         ),
 
-        spec.DirectoryInput(
-            id="workspace_dir",
-            name=gettext("workspace"),
-            about=gettext(
-                "The folder where all the model's output files will be written. If "
-                "this folder does not exist, it will be created. If data already "
-                "exists in the folder, it will be overwritten."),
-            contents=[],
-            must_exist=False,
-            permissions="rwx"
-        ),
-
         spec.StringInput(
             id="kim_semantic_query",
             name=gettext("kim semantic query"),
@@ -106,6 +94,28 @@ MODEL_SPEC = spec.ModelSpec(
 
 
 def execute(args):
+    '''
+    Executing a Semantic Query to the k.LAB Agent whic resolves the Semantic Query, and resolves the generates an Algorithm based on
+    the Available Data and Models in the Semantic Web; and generates the "Observation"
+
+    The generated "OPbservation" of the Concept "in a Spatio Temporal Context" is exported in a result.tiff file.
+
+    args['workspace_dir'] (string): output directory for intermediate,
+            temporary, and final files
+
+    args['kim_semantic_query'] : str
+        The Semantic Query to be resolved by the k.LAB Agent. Ex: "geography:Elevation", "distance to infrastructure:Highway"
+
+    args['spatial_context'] : str
+        Path to a GDAL polygon vector representing the Area of Interest (AOI). 
+
+    args['year'] : int
+        The Year of the Observation to be resolved by the k.LAB Agent. Ex: 2020
+    
+    args['klab_auth_path'] : str
+        Path to the k.LAB Remote Engine Credentials File consisting of your Username, Password and Remote Server URL in case one wants to connect to a Remote Server. Default: Local Engine, http://localhost:8283/modeler
+
+    '''
     LOGGER.info("Starting k.LAB Plugin Model")
     klab_certificate_path = args.get('klab_auth_path', None)
     year = int(args['year'])
