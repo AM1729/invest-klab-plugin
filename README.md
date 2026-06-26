@@ -23,7 +23,7 @@ username=<your username>
 password=<your password>
 engine=<link to the remote engine>
 ```
-The `engine` points to the k.LAB Engine you wishe to connect to.
+The `engine` points to the k.LAB Engine you wish to connect to.
 This could be a remote engine like: `https://integratedmodelling.org/modeler`
 or if an user is running the k.LAB Engine locally, it's kept empty, and the plugin will connect to the local engine.
 
